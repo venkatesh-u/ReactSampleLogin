@@ -10,11 +10,11 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet,
         Text, View, Alert,
         Image, Button, ProgressBarAndroid,
-        TextInput, TouchableHighlight,
+        TextInput, TouchableHighlight, AsyncStorage,
         } from 'react-native';
 
 
-import axios from 'axios'
+import axios from 'axios';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -39,7 +39,7 @@ export default class Login extends Component {
 //        Alert.alert(state.params.token);
 
         this.state = {
-              email   : 'balu.chebolu@mailinator.com',
+              email   : 'sr3@mailinator.com',
               password: '12345678',
               error: null,
               emailErrorMsg: '',
@@ -113,14 +113,28 @@ export default class Login extends Component {
 
                             this.setState({error:''});
 
-                                  axios.post('https://qa-api.eteki.com/users/sign_in', {email:email, password:password, device_id:'device_id', device_type:'ANDROID'})
+
+                                  axios.post('http://172.16.19.113:3001/users/sign_in', {email:email, password:password},
+                                     {
+                                                       headers: {
+                                                           'device_type': "ANDROID",
+                                                           'device_id': "android_id"
+                                                       }
+                                  })
                                   .then(
                                         (res)=>{
                                             this.loadProgressbar();
 
                                             if(res.data.success){
+
                                                 var json = res.data;
-                                                this.props.navigation.navigate('Dashboard', {object:  json } ) ;
+//                                                alert(JSON.stringify(json));
+                                                AsyncStorage.setItem("isLoggedIn", JSON.stringify(true) );
+                                                AsyncStorage.setItem("LoginObject", JSON.stringify(json));
+
+//                                                this.props.navigation.navigate('Dashboard', {object:  json } ) ;
+                                                this.props.navigation.navigate('Dashboard', null) ;
+
                                             }
                                             else{
                                                 alert( res.data.message[0] );

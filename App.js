@@ -10,7 +10,12 @@ import Dashboard from './home/Dashboard'
 
 
 const App = createStackNavigator({
-  SplashScreen: { screen: SplashScreen },
+  SplashScreen: {
+        screen: SplashScreen,
+        navigationOptions: {
+           header: null
+          }
+  },
   Login:{screen: Login},
   Dashboard:{screen: Dashboard},
 

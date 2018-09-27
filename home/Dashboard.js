@@ -11,10 +11,13 @@ import {Platform, StyleSheet,
         Text, View, Header,
         Image, Button, ActionBar,
         ProgressBarAndroid, ToolbarAndroid,
-        FlatList, ActivityIndicator, ToastAndroid, NativeModules
+        FlatList, ActivityIndicator, ToastAndroid, NativeModules, AsyncStorage, BackHandler
 } from 'react-native';
 
 const ToastExample = NativeModules.ToastExample;
+import axios from 'axios';
+import AwesomeAlert from 'react-native-awesome-alerts';
+
 
 //import { requireNativeComponent } from 'react-native';
 //module.exports = requireNativeComponent('MaterialCalendarView', iface);
@@ -25,25 +28,68 @@ export default class Dashboard extends Component{
 
     constructor(props){
        super(props)
-       const{state} = props.navigation;
+//       const{state} = props.navigation;
 //
-       this.state = {
-            email : state.params.object.user.email,
-            img_url : state.params.object.user.avatar.profile_thumb_url,
-            auth_token : state.params.object.authentication_token,
-            isLoading : true
-       }
+//        if(state != undefined){
+
+//       this.state = {
+//                   email : state.params.object.user.email,
+//       //            img_url : state.params.object.user.avatar.profile_thumb_url,
+//                   auth_token : state.params.object.authentication_token,
+//                   isLoading : true
+//              }
+//        }
+
+                  this.state = {
+                       email : '',
+                       auth_token : '',
+                       isLoading : true,
+                       showAlert: false,
+                      }
+//                }
+
+
+
 
 //       alert(ToastExample);
 
-       ToastExample.show('Awesome', ToastExample.SHORT);
+//       ToastExample.show('Awesome', ToastExample.SHORT);
 
        ToastExample.sendEvent();
+
+       this.getData();
 
 //       console.log(JSON.stringify(state.params.object));
     }
 
+     _showAlert = () => {
+        this.setState({
+          showAlert: true
+        });
+      };
 
+      _hideAlert = () => {
+        this.setState({
+          showAlert: false
+        });
+      };
+
+
+    getData(){
+
+         AsyncStorage.getItem("LoginObject").then((value) => {
+         var j = JSON.parse(value);
+//         alert(j.success);
+                   if( j.success ){
+                       this.setState({
+                             auth_token: j.authentication_token,
+                             email: j.user.email,
+
+                       })
+                        this.props.navigation.navigate("Dashboard", null);
+                   }
+               }).done();
+    }
 
 
 
@@ -88,7 +134,10 @@ export default class Dashboard extends Component{
 
 componentDidMount(){
 
-    return fetch('https://facebook.github.io/react-native/movies.json')
+//        alert(this.state.auth_token);
+
+        this._showAlert();
+       fetch('https://facebook.github.io/react-native/movies.json')
       .then((response) => response.json())
       .then((responseJson) => {
 
@@ -96,17 +145,20 @@ componentDidMount(){
               isLoading: false,
               dataSource: responseJson.movies,
             },
-
             function(){
                 console.log(JSON.stringify(responseJson));
-            }
+            },
+
+
+
         );
+
+        this._hideAlert();
 
       })
       .catch((error) =>{
         console.error(error);
       });
-
 
   }
 
@@ -115,27 +167,13 @@ componentDidMount(){
             let uri = {uri: 'http://www.pngonly.com/wp-content/uploads/2017/06/Nature-PNG-Clipart-Image-02.png'};
             var img_uri= {uri: this.state.img_url};
 
-//        return(
-////                <View style={styles.container_up}>
-//
-//                      <View style={styles.container_up}>
-//                         <Image source={img_uri} style={styles.image_background}/>
-//                         <Text style={styles.text_color}>{this.state.email}</Text>
-//                      </View>
-
-//                 </View>
-
-
-//              );
-
-
-        if(this.state.isLoading){
-              return(
-                <View style={{flex: 1, padding: 20}}>
-                  <ProgressBarAndroid />
-                </View>
-              )
-            }
+//            if(this.state.isLoading){
+//              return(
+//                <View style={{flex: 1, padding: 20}}>
+//                  <ProgressBarAndroid />
+//                </View>
+//              )
+//            }
 
             return(
               <View style={{flex: 1, paddingTop:20}}>
@@ -144,30 +182,62 @@ componentDidMount(){
                   renderItem={({item}) => <Text style={styles.text_color}>{item.title}, {item.releaseYear}</Text>}
                   keyExtractor={({id}, index) => id}
                 />
+
+                <Button title='Logout' onPress={()=> this.logout()}/>
+
+                <AwesomeAlert
+                          show={this.state.showAlert}
+                          showProgress={true}
+                          closeOnTouchOutside={false}
+                          closeOnHardwareBackPress={false}
+
+                        />
+
               </View>
             );
           }
 
 
-//              return(
-//                    <View style={styles.container_main}>
-//
-//
-//                                         <View style={styles.container_down}>
-//                                              <FlatList
-//                                                   data={this.state.dataSource}
-//                                                   renderItem={ ({item}) => <Text style={styles.text_color}>{item.title}, {item.releaseYear}</Text> }
-//                                                   keyExtractor={({id}, index) => id}
-//
-//                                              />
-//                                         </View>
-//
-//                                    </View>
-//
-//              )
+    logout = ()=> {
 
-//        }
+            this._showAlert();
+//            alert(this.state.auth_token);
 
+          axios.post('http://172.16.19.113:3001/users/sign_out', null,
+          {
+                  headers: {
+                      'authentication_token': this.state.auth_token,
+                      'device_type': "ANDROID",
+                      'device_id': "android_id"
+
+                  }
+          })
+          .then(
+                (res)=>{
+
+                    this._hideAlert();
+                    if(res.data.success){
+
+                        var json = res.data;
+                        this.props.navigation.navigate('Login', null ) ;
+                                AsyncStorage.setItem("isLoggedIn", JSON.stringify(false) );
+                                AsyncStorage.clear();
+                                alert("Logout succesfully");
+//                                BackHandler.exitApp();
+
+                    }
+                    else{
+                        alert(JSON.stringify(res) );
+                    }
+                }
+          )
+          .catch(
+                (error)=>{
+                    alert(error);
+                }
+          );
+
+    }
 
 }
 

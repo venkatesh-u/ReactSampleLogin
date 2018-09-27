@@ -13,7 +13,7 @@ import {Platform, StyleSheet,
 
 
 import React, { Component } from 'react';
-import { NativeModules, requireNativeComponent, ViewPropTypes, DeviceEventEmitter} from 'react-native';
+import { NativeModules, requireNativeComponent, ViewPropTypes, DeviceEventEmitter, AsyncStorage} from 'react-native';
 
 import ProgressBarView from './ProgressBar';
 //module.exports = requireNativeComponent('MaterialCalendarView', iface);
@@ -42,6 +42,13 @@ const instructions = Platform.select({
 
     componentDidMount(){
        this.listener =  DeviceEventEmitter.addListener('onSessionConnect', this.handleEvent);
+
+       AsyncStorage.getItem("isLoggedIn").then((value) => {
+           if( JSON.parse(value) ){
+                this.props.navigation.navigate("Dashboard", null);
+           }
+       }).done();
+
     }
 
 

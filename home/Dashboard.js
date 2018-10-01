@@ -10,13 +10,14 @@ import React, {Component, PropTypes} from 'react';
 import {Platform, StyleSheet,
         Text, View, Header,
         Image, Button, ActionBar,
-        ProgressBarAndroid, ToolbarAndroid,
+        ProgressBarAndroid, ToolbarAndroid, ActionBarImage, StatusBar,
         FlatList, ActivityIndicator, ToastAndroid, NativeModules, AsyncStorage, BackHandler
 } from 'react-native';
 
 const ToastExample = NativeModules.ToastExample;
 import axios from 'axios';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import { HeaderBackButton } from 'react-navigation';
 
 
 //import { requireNativeComponent } from 'react-native';
@@ -28,8 +29,10 @@ export default class Dashboard extends Component{
 
     constructor(props){
        super(props)
+        this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
+//        this.logout = this.logout.bind(this);
+
 //       const{state} = props.navigation;
-//
 //        if(state != undefined){
 
 //       this.state = {
@@ -39,27 +42,38 @@ export default class Dashboard extends Component{
 //                   isLoading : true
 //              }
 //        }
-
                   this.state = {
                        email : '',
                        auth_token : '',
                        isLoading : true,
                        showAlert: false,
+//                       is_logged_in:true;
                       }
 //                }
 
 
 
 
-//       alert(ToastExample);
-
 //       ToastExample.show('Awesome', ToastExample.SHORT);
-
-       ToastExample.sendEvent();
+//       ToastExample.sendEvent();
 
        this.getData();
 
 //       console.log(JSON.stringify(state.params.object));
+    }
+
+
+    componentWillMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButtonClick);
+    }
+
+    handleBackButtonClick() {
+             BackHandler.exitApp();
+        return false;
     }
 
      _showAlert = () => {
@@ -95,34 +109,39 @@ export default class Dashboard extends Component{
 
 
     static navigationOptions={
-        title: 'Dashboard',
+        headerTitle: 'Dashboard',
         headerStyle: {
-            backgroundColor: 'powderblue'
+            backgroundColor: 'powderblue',
           },
         headerTitleStyle: {
-            alignSelf: 'center'
+            textAlign:'center',
+            flex:1,
+//            alignItems:'center',
+//            justifyContent:'center',
           },
         headerTintColor: 'black',
         actions:true,
+//        headerRight: <Text style={{ text_color:'red', color:'black', marginRight:18, fontWeight:'bold', fontSize:22}}
+//         onPress={() => this.logout()} >Logout</Text>
+        headerLeft: <HeaderBackButton onPress={() => BackHandler.exitApp() } />
 
-        navigatorButtons: {
-              rightButtons: [
-                {
-                  id: 'custom-button',
-                  component: 'CustomButton', // This line loads our component as a nav bar button item
-                  passProps: {
-                    text: 'Hi!',
-                  },
-                },
-              ],
-            },
+
+//        navigatorButtons: {
+//              rightButtons: [
+//                {
+//                  id: 'custom-button',
+//                  component: 'CustomButton', // This line loads our component as a nav bar button item
+//                  passProps: {
+//                    text: 'Hi!',
+//                  },
+//                },
+//              ],
+//            },
     };
 
 //     <ToolbarAndroid
 //                      actions={[{title: 'Settings', icon: require('./ic_launcher.png'), show: 'always'}]}
 //                      onActionSelected={this.onActionSelected}/>
-//
-
 
 // <Header
 //      leftComponent={{ icon: 'menu', color: '#fff' }}
@@ -133,8 +152,6 @@ export default class Dashboard extends Component{
 
 
 componentDidMount(){
-
-//        alert(this.state.auth_token);
 
         this._showAlert();
        fetch('https://facebook.github.io/react-native/movies.json')
@@ -177,14 +194,16 @@ componentDidMount(){
 
             return(
               <View style={{flex: 1, paddingTop:20}}>
+                      <StatusBar barStyle = "dark-content" backgroundColor='skyblue'  hidden = {false}/>
+
                 <FlatList
                   data={this.state.dataSource}
                   renderItem={({item}) => <Text style={styles.text_color}>{item.title}, {item.releaseYear}</Text>}
                   keyExtractor={({id}, index) => id}
                 />
 
+                <Button title='Go to Maps' onPress={()=> this.props.navigation.navigate('Maps')}/>
                 <Button title='Logout' onPress={()=> this.logout()}/>
-
                 <AwesomeAlert
                           show={this.state.showAlert}
                           showProgress={true}
@@ -198,12 +217,12 @@ componentDidMount(){
           }
 
 
-    logout = ()=> {
+    logout = () => {
 
-            this._showAlert();
-//            alert(this.state.auth_token);
+        alert(this.state.auth_token);
 
-          axios.post('http://172.16.19.113:3001/users/sign_out', null,
+          this._showAlert();
+          axios.post('https://qa-api.eteki.com/users/sign_out', null,
           {
                   headers: {
                       'authentication_token': this.state.auth_token,
@@ -222,12 +241,13 @@ componentDidMount(){
                         this.props.navigation.navigate('Login', null ) ;
                                 AsyncStorage.setItem("isLoggedIn", JSON.stringify(false) );
                                 AsyncStorage.clear();
-                                alert("Logout succesfully");
+                                alert("Logout successful");
 //                                BackHandler.exitApp();
-
                     }
                     else{
                         alert(JSON.stringify(res) );
+                              this.props.navigation.navigate('Login', null ) ;
+
                     }
                 }
           )
@@ -268,7 +288,6 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
 
     },
-
 
     container_up: {
       flex: 1,

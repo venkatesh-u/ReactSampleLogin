@@ -8,7 +8,7 @@
 
 import React, {Component} from 'react';
 import {Platform, StyleSheet,
-        Text, View, Alert,
+        Text, View, Alert, StatusBar,
         Image, Button, ProgressBarAndroid,
         TextInput, TouchableHighlight, AsyncStorage,
         } from 'react-native';
@@ -23,23 +23,24 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
+import {Header} from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import styles from './stylesDir/GlobalStyles';
+import LoginHeader from './LoginHeader';
+
+
 //type Props = {};
-
 //var myBool = false;
-
-
-
 
 export default class Login extends Component {
 
     constructor(props){
         super(props)
-
 //        const {state} = props.navigation;
 //        Alert.alert(state.params.token);
 
         this.state = {
-              email   : 'sr3@mailinator.com',
+              email   : 'balu.chebolu@mailinator.com',
               password: '12345678',
               error: null,
               emailErrorMsg: '',
@@ -48,9 +49,9 @@ export default class Login extends Component {
             }
     }
 
-  static navigationOptions = {
-        title: 'Login',
-  };
+//  static navigationOptions = {
+//        title: 'Login',
+//  };
 
   //Validate email and password
   isValid() {
@@ -113,16 +114,14 @@ export default class Login extends Component {
 
                             this.setState({error:''});
 
-
-                                  axios.post('http://172.16.19.113:3001/users/sign_in', {email:email, password:password},
-                                     {
-                                                       headers: {
-                                                           'device_type': "ANDROID",
-                                                           'device_id': "android_id"
-                                                       }
+                                  axios.post('https://qa-api.eteki.com/users/sign_in', {email:email, password:password},
+                                  {
+                                       headers: {
+                                           'device_type': "ANDROID",
+                                           'device_id': "android_id"
+                                       }
                                   })
-                                  .then(
-                                        (res)=>{
+                                  .then(    (res)=>{
                                             this.loadProgressbar();
 
                                             if(res.data.success){
@@ -167,93 +166,92 @@ export default class Login extends Component {
     clearError = (viewId, values) =>{
         switch(viewId){
 
-        case 'email_error':
-            if(values.length > 0){
-                        this.setState({error:''})
-                }else{
-                    this.setState({ error: 'You must enter an email address' });
-                }
-        break;
-        case 'pwd_error':
-            if(values.length > 0){
-                        this.setState({error:''})
+            case 'email_error':
+                if(values.length > 0){
+                            this.setState({error:''})
                     }else{
-                        this.setState({ error: 'You must enter a password' });
+                        this.setState({ error: 'You must enter an email address' });
                     }
-        break;
+            break;
+            case 'pwd_error':
+                if(values.length > 0){
+                            this.setState({error:''})
+                        }else{
+                            this.setState({ error: 'You must enter a password' });
+                        }
+            break;
         }
     }
 
   render() {
     return (
+
       <View style={styles.container_out}>
 
-
-      {
-        this.state.progressbarStatus? <ProgressBarAndroid styleAttr="Horizontal" color='#2196F3' style= {styles.progress_style} /> : null
-      }
+        <StatusBar barStyle = "dark-content" backgroundColor='skyblue'  hidden = {false}/>
+              <LoginHeader/>
 
 
-      <View style={styles.container_in}>
+               {
+                      this.state.progressbarStatus? <ProgressBarAndroid styleAttr="Horizontal" color='#2196F3' style= {styles.progress_style} /> : null
+                    }
 
 
-      <Text style={styles.error_text}>{this.state.error}</Text>
+                    <View style={styles.container_in}>
 
 
-         <View style={styles.inputContainer}>
-
-                <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/message/ultraviolet/50/3498db'}}/>
-                <TextInput style={styles.inputs}
-                        placeholder="Email"
-                        keyboardType="email-address"
-                        underlineColorAndroid='transparent'
-                        onChangeText={ (email) => {
-                                this.setState({email});
-                                /*this.clearError('email_error', email)*/
-                            }
-                        }/>
-         </View>
-
-         <Text style={styles.error_text}>{this.state.emailErrorMsg}</Text>
+                    <Text style={styles.error_text}>{this.state.error}</Text>
 
 
-         <View style={styles.inputContainer}>
-                   <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db'}}/>
-                   <TextInput style={styles.inputs}
-                       placeholder="Password"
-                       secureTextEntry={true}
-                       underlineColorAndroid='transparent'
-                       onChangeText={ (password) => {
-                               this.setState({password});
-                               /*this.clearError('pwd_error', password)*/
-                           }
-                       }/>
-         </View>
+                       <View style={styles.inputContainer}>
+
+                              <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/message/ultraviolet/50/3498db'}}/>
+                              <TextInput style={styles.inputs}
+                                      placeholder="Email"
+                                      keyboardType="email-address"
+                                      underlineColorAndroid='transparent'
+                                      onChangeText={ (email) => {
+                                              this.setState({email});
+                                              /*this.clearError('email_error', email)*/
+                                          }
+                                      }/>
+                       </View>
+
+                       <Text style={styles.error_text}>{this.state.emailErrorMsg}</Text>
 
 
-         <Text style={styles.error_text}>{this.state.passwordErrorMsg}</Text>
+                       <View style={styles.inputContainer}>
+                                 <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db'}}/>
+                                 <TextInput style={styles.inputs}
+                                     placeholder="Password"
+                                     secureTextEntry={true}
+                                     underlineColorAndroid='transparent'
+                                     onChangeText={ (password) => {
+                                             this.setState({password});
+                                             /*this.clearError('pwd_error', password)*/
+                                         }
+                                     }/>
+                       </View>
 
 
-
-
-
-
-          <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.onClickListener('login')}>
-                   <Text style={styles.loginText}>Login</Text></TouchableHighlight>
-
-          <TouchableHighlight style={styles.buttonContainer} onPress={() => this.onClickListener('restore_password')}>
-                      <Text>Forgot your password?</Text></TouchableHighlight>
-
-          <TouchableHighlight style={styles.buttonContainer} onPress={() => this.onClickListener('register')}>
-              <Text>Register</Text></TouchableHighlight>
+                       <Text style={styles.error_text}>{this.state.passwordErrorMsg}</Text>
 
 
 
+                        <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.onClickListener('login')}>
+                                 <Text style={styles.loginText}>Login</Text></TouchableHighlight>
+
+                        <TouchableHighlight style={styles.buttonContainer} onPress={() => this.onClickListener('restore_password')}>
+                                    <Text>Forgot your password?</Text></TouchableHighlight>
+
+                        <TouchableHighlight style={styles.buttonContainer} onPress={() => this.onClickListener('register')}>
+                            <Text>Register</Text></TouchableHighlight>
+
+
+                  </View>
 
 
 
-
-    </View>
       </View>
     );
   }
@@ -262,97 +260,106 @@ export default class Login extends Component {
 
 
 
-const styles = StyleSheet.create({
-  container_out: {
-      flex: 1,
-      backgroundColor: '#DCDCDC',
-    },
-
-    container_in: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#DCDCDC',
-        },
 
 
-
-    error_text:{
-        color:'red',
-        textAlign:'justify',
-        marginBottom:20,
-    },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#212121',
-    marginBottom: 5,
-  },
-  image_styles:{
-    width: 50,
-    height: 50
-  },
-  text_input_style:{
-    height: 40,
-    borderColor: '#ffffff',
-    borderWidth: 1,
-    color:'skyblue',
-    borderBottomColor:'red',
-
-  },
-
-  inputContainer: {
-        borderBottomColor: '#F5FCFF',
-        backgroundColor: '#FFFFFF',
-        borderRadius:30,
-        borderBottomWidth: 1,
-        width:350,
-        height:45,
-        marginBottom:5,
-        flexDirection: 'row',
-        alignItems:'center'
-    },
-    inputIcon:{
-        width:30,
-        height:30,
-        marginLeft:15,
-        justifyContent: 'center'
-    },
-     inputs:{
-          height:45,
-          marginLeft:16,
-          borderBottomColor: '#FFFFFF',
-          flex:1,
-      },
-
-      buttonContainer: {
-          height:45,
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom:20,
-          width:300,
-          borderRadius:30,
-        },
-
-          loginButton: {
-            backgroundColor: "#00b5ec",
-          },
-
-          loginText: {
-            color: 'white',
-          },
-
-          progress_style:{
-            width: 450,
-          }
-
-
-
-
-
-});
+//
+//const styles = StyleSheet.create({
+//  container_out: {
+//      flex: 1,
+////      backgroundColor: '#DCDCDC',
+//          backgroundColor: '#ecf0f1',
+//    },
+//
+//    container_in: {
+//          flex: 1,
+//          justifyContent: 'center',
+//          alignItems: 'center',
+//          backgroundColor: '#DCDCDC',
+//        },
+//
+//
+//
+//    error_text:{
+//        color:'red',
+//        textAlign:'justify',
+//        marginBottom:20,
+//    },
+//  welcome: {
+//    fontSize: 20,
+//    textAlign: 'center',
+//    margin: 10,
+//  },
+//  instructions: {
+//    textAlign: 'center',
+//    color: '#212121',
+//    marginBottom: 5,
+//  },
+//  image_styles:{
+//    width: 50,
+//    height: 50
+//  },
+//  text_input_style:{
+//    height: 40,
+//    borderColor: '#ffffff',
+//    borderWidth: 1,
+//    color:'skyblue',
+//    borderBottomColor:'red',
+//
+//  },
+//
+//  inputContainer: {
+//        borderBottomColor: '#F5FCFF',
+//        backgroundColor: '#FFFFFF',
+//        borderRadius:30,
+//        borderBottomWidth: 1,
+//        width:350,
+//        height:45,
+//        marginBottom:5,
+//        flexDirection: 'row',
+//        alignItems:'center'
+//    },
+//    inputIcon:{
+//        width:30,
+//        height:30,
+//        marginLeft:15,
+//        justifyContent: 'center'
+//    },
+//     inputs:{
+//          height:45,
+//          marginLeft:16,
+//          borderBottomColor: '#FFFFFF',
+//          flex:1,
+//      },
+//
+//      buttonContainer: {
+//          height:45,
+//          flexDirection: 'row',
+//          justifyContent: 'center',
+//          alignItems: 'center',
+//          marginBottom:20,
+//          width:300,
+//          borderRadius:30,
+//        },
+//
+//          loginButton: {
+//            backgroundColor: "#00b5ec",
+//          },
+//
+//          loginText: {
+//            color: 'white',
+//          },
+//
+//          progress_style:{
+//            width: 450,
+//          },
+//
+//           topMenu: {
+//              height: 53,
+//              backgroundColor: '#64b5f6',
+//            },
+//
+//
+//
+//
+//
+//});

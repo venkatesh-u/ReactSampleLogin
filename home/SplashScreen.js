@@ -137,19 +137,25 @@ const instructions = Platform.select({
     return (
       <View style = {styles.container}>
 
-            <Image source={uri} style={styles.image_styles} />
-             <Text style={styles.welcome}> {this.state.TextHolder} </Text>
-                        <Text style={styles.instructions}> To get started, edit App.js </Text>
-                        <Text style={styles.instructions}> {instructions} </Text>
+            <View style={styles.top_container_1}>
+                <Image source={uri} style={styles.image_styles} />
+            </View>
 
+            <View style={styles.top_container_2}>
+                 <Text style={styles.welcome}> {this.state.TextHolder} </Text>
+                            <Text style={styles.instructions}> To get started, edit App.js </Text>
+                            <Text style={styles.instructions}> {instructions} </Text>
 
-              <Button  onPress = {this.onPressLearnMore} title="Next Screen"
-                        style={styles.button_style} accessibilityLabel="Learn more about this purple button"/>
+                  <Button  onPress = {this.onPressLearnMore} title="Next Screen"
+                            style={styles.button_style} accessibilityLabel="Learn more about this purple button"/>
 
-            <ProgressBarView
-                  progress = {this.state.progressVal}
-                  style={styles.image_styles}
-                  />
+                   <ProgressBarView
+                        progress = {this.state.progressVal}
+                        style={styles.image_styles}
+                        />
+
+            </View>
+
 
       </View>
     );
@@ -227,17 +233,41 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   image_styles:{
-    width: 150,
-    height: 50
+//    width: 300,
+//    height: 50,
+        flex:1,
+//        justifyContent:'center',
+//        alignItems:'center',
+        alignSelf:'stretch',
   },
   button_style:{
       margin: 50,
-      color:'#841584'
+      backgroundColor:'red',
   },
 
   progress_style:{
       width: 300,
       color: 'black'
   },
+
+    top_container_1:{
+        flex:1,
+        backgroundColor:'red',
+        alignSelf:'stretch',
+        alignItems:'center',
+        justifyContent:'center',
+        padding:10,
+
+    },
+
+  top_container_2:{
+        flex:1,
+        backgroundColor:'yellow',
+        alignSelf:'stretch',
+
+    },
+
+
+
 
 });
